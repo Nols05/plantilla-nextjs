@@ -38,10 +38,8 @@ Referencia viva del patrón completo: modelo `Task` en
 
 - **Next.js 16 async APIs:** siempre `await` `cookies()`, `headers()`,
   `draftMode()`, `props.params` y `props.searchParams`.
-- **Estado y datos:** evita `useEffect` salvo para sincronizar con sistemas
-  externos de verdad (revisa ["You Might Not Need an Effect"](https://react.dev/learn/you-might-not-need-an-effect)
-  antes de escribir uno). Usa TanStack Query para todo fetching/caching, no
-  `useState` + `useEffect` a mano.
+- **Estado y datos:** evita `useEffect` (ver sección de rendimiento más abajo).
+  Usa TanStack Query para todo fetching/caching, no `useState` + `useEffect` a mano.
 - **SSR + TanStack Query:** para páginas que necesitan datos al cargar, sigue
   el patrón de `app/tasks/page.tsx` — `getQueryClient()` +
   `prefetchQuery` + `<HydrationBoundary>`, con el mismo `queryKey` que el hook
@@ -59,6 +57,36 @@ Referencia viva del patrón completo: modelo `Task` en
   `prisma/schema/<dominio>.prisma`, nunca amontonados en `main.prisma`.
 - **Validación:** valida el body de cualquier API route con `zod` (ver
   `app/api/tasks/route.ts`).
+
+## Rendimiento y patrones de React/Next.js
+
+Guía completa (45 reglas con ejemplos, de Vercel Engineering) vendorizada en
+[`.agents/skills/vercel-react-best-practices/`](./.agents/skills/vercel-react-best-practices/SKILL.md)
+— consúltala antes de escribir fetching de datos, componentes con estado, o
+cualquier código sensible a rendimiento. Resumen de lo más importante:
+
+- **Evita `useEffect`** salvo para sincronizar con un sistema externo real
+  (DOM, `localStorage`, una suscripción externa). Antes de escribir uno, lee
+  ["You Might Not Need an Effect"](https://react.dev/learn/you-might-not-need-an-effect).
+  Fetching de datos → TanStack Query, nunca `useState` + `useEffect` a mano.
+- **Evita re-renders innecesarios:** `useState(() => calcularCaro())` (lazy
+  init) para valores caros de calcular; `setX((prev) => ...)` funcional para
+  callbacks estables; deriva estado en el render (`const isEmpty = items.length === 0`)
+  en vez de guardarlo en otro `useState` sincronizado a mano; no suscribas un
+  componente a estado que solo lees dentro de un callback/evento.
+- **Next.js 16 / Server Components:** paraleliza fetches independientes
+  (`Promise.all`, no `await` en cadena de cosas que no dependen entre sí),
+  usa `React.cache()` para deduplicar dentro del mismo request, streamea
+  secciones lentas con `<Suspense>` en vez de bloquear toda la página con un
+  `await` al principio del Server Component.
+- **Bundle:** `next/dynamic` para componentes pesados que no son above-the-fold;
+  importa símbolos directos (`import { Button } from "lib/x"`, no barrels
+  `index.ts` que reexportan todo); difiere analytics/scripts de terceros a
+  después de la hidratación.
+- **TanStack Query:** sigue el patrón de `lib/features/tasks/` — query key
+  factory tipada, `staleTime`/`gcTime` explícitos por endpoint, e invalidación
+  específica en el `onSuccess` de cada mutación (`invalidateQueries({ queryKey: [...] })`
+  con la key concreta, no una invalidación global sin key).
 
 ## Autenticación (Better Auth)
 

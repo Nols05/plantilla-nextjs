@@ -101,6 +101,7 @@ prisma/schema/          un archivo .prisma por dominio (auth.prisma generado
                         por `pnpm run auth:generate`, no editar a mano)
 prisma/seed.ts          seed de desarrollo
 scripts/                scripts de mantenimiento (tests, rename-project)
+.agents/skills/         guía de rendimiento React/Next.js vendorizada (ver AGENTS.md)
 ```
 
 ## Despliegue
