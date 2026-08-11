@@ -13,6 +13,7 @@
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
     "prisma:seed": "tsx prisma/seed.ts",
+    "auth:generate": "auth generate --config lib/core/auth.ts --output ./prisma/schema/auth.prisma --yes",
     "rename-project": "node scripts/rename-project.mjs",
     "knip": "knip"
   },
@@ -22,6 +23,7 @@
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "@tanstack/react-query": "^5.101.4",
+    "better-auth": "^1.6.27",
     "class-variance-authority": "^0.7.1",
     "cnfast": "^0.1.0",
     "dotenv": "^17.4.2",
@@ -38,6 +40,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
+    "auth": "^1.6.27",
     "@tanstack/react-query-devtools": "^5.101.4",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",

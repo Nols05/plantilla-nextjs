@@ -14,6 +14,8 @@ concurrency:
 
 env:
   DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+  BETTER_AUTH_SECRET: "dummy-ci-secret-at-least-32-characters-long"
+  BETTER_AUTH_URL: "http://localhost:3000"
 
 jobs:
   typecheck:

@@ -2,7 +2,8 @@
 
 Plantilla base para arrancar proyectos: Next.js 16 (App Router), Prisma 7
 (Postgres, carpeta `prisma/schema/`), Tailwind 4, TanStack Query 5 (con SSR
-avanzado), TypeScript 7 y UI [coss](https://coss.build)/shadcn.
+avanzado), TypeScript 7, UI [coss](https://coss.build)/shadcn y autenticación
+con [Better Auth](https://better-auth.com).
 
 Para las convenciones técnicas (qué patrones seguir, cómo se organiza `lib/`,
 cómo añadir una feature) ve a [AGENTS.md](./AGENTS.md). Para el flujo de "usar
@@ -12,29 +13,31 @@ esta plantilla en un proyecto nuevo", sigue leyendo.
 
 ```bash
 pnpm install
-cp .env.example .env   # y rellena DATABASE_URL con tu Postgres real
+cp .env.example .env   # rellena DATABASE_URL con tu Postgres real
+openssl rand -base64 32   # pega el resultado en BETTER_AUTH_SECRET dentro de .env
 pnpm prisma generate
 pnpm dev
 ```
 
-Abre [http://localhost:3000](http://localhost:3000) y
-[http://localhost:3000/tasks](http://localhost:3000/tasks) (ejemplo end-to-end
-de Prisma + API route + TanStack Query con prefetch SSR).
+Abre [http://localhost:3000](http://localhost:3000) (sign in/up con Better
+Auth) y [http://localhost:3000/tasks](http://localhost:3000/tasks) (ejemplo
+end-to-end de Prisma + API route + TanStack Query con prefetch SSR).
 
 ## Scripts
 
-| Script                    | Qué hace                                           |
-| ------------------------- | -------------------------------------------------- |
-| `pnpm dev`                | Servidor de desarrollo (Turbopack)                 |
-| `pnpm build`              | Build de producción (standalone)                   |
-| `pnpm start`              | Sirve el build de producción                       |
-| `pnpm test`               | Tests (`node --test`, sin framework extra)         |
-| `pnpm run lint`           | ESLint                                             |
-| `pnpm run format`         | Prettier (con orden de clases de Tailwind)         |
-| `pnpm run typecheck`      | `tsc --noEmit`                                     |
-| `pnpm run knip`           | Detecta código y dependencias muertas              |
-| `pnpm prisma:seed`        | Seed de la base de datos (`prisma/seed.ts`)        |
-| `pnpm run rename-project` | Sustituye el nombre placeholder por el nombre real |
+| Script                    | Qué hace                                                           |
+| ------------------------- | ------------------------------------------------------------------ |
+| `pnpm dev`                | Servidor de desarrollo (Turbopack)                                 |
+| `pnpm build`              | Build de producción (standalone)                                   |
+| `pnpm start`              | Sirve el build de producción                                       |
+| `pnpm test`               | Tests (`node --test`, sin framework extra)                         |
+| `pnpm run lint`           | ESLint                                                             |
+| `pnpm run format`         | Prettier (con orden de clases de Tailwind)                         |
+| `pnpm run typecheck`      | `tsc --noEmit`                                                     |
+| `pnpm run knip`           | Detecta código y dependencias muertas                              |
+| `pnpm prisma:seed`        | Seed de la base de datos (`prisma/seed.ts`)                        |
+| `pnpm run auth:generate`  | Regenera `prisma/schema/auth.prisma` tras tocar `lib/core/auth.ts` |
+| `pnpm run rename-project` | Sustituye el nombre placeholder por el nombre real                 |
 
 ## Flujo recomendado para un proyecto nuevo
 
@@ -86,12 +89,16 @@ gh api repos/{owner}/{repo} -X PATCH -f is_template=true
 
 ```
 app/                   rutas, layouts, API routes
+  api/auth/[...all]/    handler catch-all de Better Auth
   api/tasks/route.ts    ejemplo de API route con validación zod
+  sign-in/, sign-up/    formularios de referencia de Better Auth
   tasks/                ejemplo de página SSR con prefetch + HydrationBoundary
 components/ui/         componentes coss/shadcn (generados, no editar a mano)
-lib/core/               infraestructura: db.ts, react-query.ts, utils.ts (cn)
+lib/core/               infraestructura: db.ts, react-query.ts, utils.ts (cn),
+                        auth.ts (servidor), auth-client.ts (React)
 lib/features/tasks/     ejemplo de patrón por-feature (queries + hooks)
-prisma/schema/          un archivo .prisma por dominio
+prisma/schema/          un archivo .prisma por dominio (auth.prisma generado
+                        por `pnpm run auth:generate`, no editar a mano)
 prisma/seed.ts          seed de desarrollo
 scripts/                scripts de mantenimiento (tests, rename-project)
 ```

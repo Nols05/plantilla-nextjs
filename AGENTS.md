@@ -12,8 +12,9 @@ verdad tool-agnostic; `CLAUDE.md` solo apunta aquí para evitar duplicar reglas.
 ## Stack
 
 Next.js 16 (App Router), React 19, TypeScript 7, Prisma 7 (Postgres),
-TanStack Query 5, Tailwind 4, UI con [coss](https://coss.build)/shadcn.
-Gestor de paquetes: **pnpm** (no uses npm/yarn, el lockfile es `pnpm-lock.yaml`).
+TanStack Query 5, Tailwind 4, UI con [coss](https://coss.build)/shadcn,
+autenticación con [Better Auth](https://better-auth.com). Gestor de paquetes:
+**pnpm** (no uses npm/yarn, el lockfile es `pnpm-lock.yaml`).
 
 ## Estructura del proyecto
 
@@ -58,6 +59,33 @@ Referencia viva del patrón completo: modelo `Task` en
   `prisma/schema/<dominio>.prisma`, nunca amontonados en `main.prisma`.
 - **Validación:** valida el body de cualquier API route con `zod` (ver
   `app/api/tasks/route.ts`).
+
+## Autenticación (Better Auth)
+
+- `lib/core/auth.ts` — instancia servidor (`betterAuth()`), usa el mismo
+  singleton `prisma` de `lib/core/db.ts` vía `prismaAdapter`. Nunca crees una
+  segunda instancia de `betterAuth()`.
+- `lib/core/auth-client.ts` — cliente React (`authClient`, `useSession`,
+  `signIn`, `signUp`, `signOut`), para usar en Client Components.
+- `app/api/auth/[...all]/route.ts` — handler catch-all, no lo muevas de sitio.
+- **Server** (Server Components, Route Handlers, Server Actions): comprueba
+  la sesión con
+  ```ts
+  const session = await auth.api.getSession({ headers: await headers() });
+  ```
+- **Client**: usa el hook `useSession()` de `@/lib/core/auth-client` (ver
+  `app/page.tsx`). Formularios de referencia en `app/sign-in/page.tsx` y
+  `app/sign-up/page.tsx`.
+- **Proteger rutas**: Next.js 16 renombró `middleware.ts` a `proxy.ts`. Si el
+  proyecto necesita rutas protegidas, añade un `proxy.ts` en la raíz que
+  llame a `auth.api.getSession` y redirija si no hay sesión — no hay uno en
+  la plantilla porque qué proteger depende de cada proyecto.
+- **Cambiar el modelo de datos de auth** (añadir campos, proveedores OAuth,
+  plugins con sus propias tablas): edita `lib/core/auth.ts` y regenera con
+  `pnpm run auth:generate` — **no edites `prisma/schema/auth.prisma` a
+  mano**, se sobrescribe. Después `pnpm prisma generate`.
+- Variables de entorno requeridas: `BETTER_AUTH_SECRET` (32+ caracteres,
+  genera una con `openssl rand -base64 32`) y `BETTER_AUTH_URL`.
 
 ## Cómo añadir una feature nueva
 
