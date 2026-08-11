@@ -3,8 +3,12 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/core/db";
 
-export async function GET() {
-  const tasks = await prisma.task.findMany({ orderBy: { createdAt: "desc" } });
+export async function GET(request: Request) {
+  const q = new URL(request.url).searchParams.get("q")?.trim();
+  const tasks = await prisma.task.findMany({
+    where: q ? { title: { contains: q, mode: "insensitive" } } : undefined,
+    orderBy: { createdAt: "desc" },
+  });
   return NextResponse.json({ tasks });
 }
 

@@ -1,17 +1,27 @@
 "use client";
 
+import { useQueryStates } from "nuqs";
 import { useState } from "react";
 
 import { cn } from "@/lib/core/utils";
 import { useCreateTaskMutation, useTasksQuery } from "@/lib/features/tasks/hooks";
+import { tasksSearchParams } from "@/lib/features/tasks/search-params";
 
 export function TasksClient() {
-  const { data: tasks, isPending } = useTasksQuery();
+  const [{ q }, setSearchParams] = useQueryStates(tasksSearchParams);
+  const { data: tasks, isPending } = useTasksQuery(q);
   const createTask = useCreateTaskMutation();
   const [title, setTitle] = useState("");
 
   return (
     <div className="flex flex-col gap-4">
+      <input
+        className="rounded-md border px-3 py-2 text-sm"
+        placeholder="Buscar tareas..."
+        value={q}
+        onChange={(event) => void setSearchParams({ q: event.target.value || null })}
+      />
+
       <form
         className="flex gap-2"
         onSubmit={(event) => {

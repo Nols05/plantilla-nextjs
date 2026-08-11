@@ -10,3 +10,6 @@ generated/
 pnpm-lock.yaml
 
 prisma/migrations/
+
+# Vendored third-party content — keep byte-identical to upstream
+.agents/skills/

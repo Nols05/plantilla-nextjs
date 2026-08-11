@@ -6,10 +6,10 @@ import { toast } from "sonner";
 import { fetchTasks, tasksQueryKey } from "./queries";
 import type { TaskDTO } from "./types";
 
-export function useTasksQuery() {
+export function useTasksQuery(q: string) {
   return useQuery({
-    queryKey: tasksQueryKey,
-    queryFn: () => fetchTasks(),
+    queryKey: tasksQueryKey(q),
+    queryFn: () => fetchTasks({ q }),
   });
 }
 
@@ -30,7 +30,8 @@ export function useCreateTaskMutation() {
   return useMutation({
     mutationFn: createTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tasksQueryKey });
+      // Prefix match invalidates every "q" variant of the tasks list.
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : "No se pudo crear la tarea");

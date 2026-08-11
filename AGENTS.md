@@ -13,8 +13,9 @@ verdad tool-agnostic; `CLAUDE.md` solo apunta aquí para evitar duplicar reglas.
 
 Next.js 16 (App Router), React 19, TypeScript 7, Prisma 7 (Postgres),
 TanStack Query 5, Tailwind 4, UI con [coss](https://coss.build)/shadcn,
-autenticación con [Better Auth](https://better-auth.com). Gestor de paquetes:
-**pnpm** (no uses npm/yarn, el lockfile es `pnpm-lock.yaml`).
+autenticación con [Better Auth](https://better-auth.com), estado de query
+params con [nuqs](https://nuqs.dev). Gestor de paquetes: **pnpm** (no uses
+npm/yarn, el lockfile es `pnpm-lock.yaml`).
 
 ## Estructura del proyecto
 
@@ -28,11 +29,13 @@ autenticación con [Better Auth](https://better-auth.com). Gestor de paquetes:
 - `components/ui/` — componentes shadcn/coss generados. No los edites a mano
   salvo necesidad real; añade nuevos con `pnpm dlx shadcn add <componente>`.
 
-Referencia viva del patrón completo: modelo `Task` en
+Referencia viva del patrón completo (Prisma + TanStack Query SSR + nuqs +
+Suspense) en modelo `Task`:
 [`prisma/schema/tasks.prisma`](./prisma/schema/tasks.prisma) +
 [`app/api/tasks/route.ts`](./app/api/tasks/route.ts) +
 [`lib/features/tasks/`](./lib/features/tasks/) +
-[`app/tasks/page.tsx`](./app/tasks/page.tsx).
+[`app/tasks/page.tsx`](./app/tasks/page.tsx) +
+[`app/tasks/tasks-client.tsx`](./app/tasks/tasks-client.tsx).
 
 ## Reglas críticas
 
@@ -88,6 +91,33 @@ cualquier código sensible a rendimiento. Resumen de lo más importante:
   específica en el `onSuccess` de cada mutación (`invalidateQueries({ queryKey: [...] })`
   con la key concreta, no una invalidación global sin key).
 
+## Parámetros de búsqueda en la URL (nuqs)
+
+Para cualquier estado que deba sobrevivir a un refresh o ser compartible por
+URL (filtros, búsqueda, paginación, pestaña activa) usa **nuqs**, no
+`useState`. `<NuqsAdapter>` ya envuelve la app en `app/layout.tsx`.
+
+- Define los parsers **una sola vez** por feature, en un archivo
+  `search-params.ts` que se importa tanto desde el servidor como desde el
+  cliente (ver [`lib/features/tasks/search-params.ts`](./lib/features/tasks/search-params.ts)):
+  ```ts
+  import { createLoader, parseAsString } from "nuqs/server";
+
+  export const tasksSearchParams = { q: parseAsString.withDefault("") };
+  export const loadTasksSearchParams = createLoader(tasksSearchParams);
+  ```
+- **Server Component** (`page.tsx`): `await loadTasksSearchParams(searchParams)`
+  y úsalo para el `prefetchQuery` — el `queryKey` de TanStack Query debe
+  incluir el valor (`["tasks", q]`), igual que en `lib/features/tasks/queries.ts`.
+- **Client Component**: `useQueryStates(tasksSearchParams)` de `"nuqs"` (no
+  `"nuqs/server"`) — mismo objeto de parsers, así servidor y cliente nunca se
+  desincronizan.
+- Envuelve en `<Suspense>` el Client Component que lee el estado de nuqs
+  dentro de un Server Component que ya hizo `await` de los `searchParams`
+  (ver `app/tasks/page.tsx`) — es el patrón que documenta la
+  [guía server-side de nuqs](https://nuqs.dev/docs/server-side) para no
+  bloquear el shell estático de la página.
+
 ## Autenticación (Better Auth)
 
 - `lib/core/auth.ts` — instancia servidor (`betterAuth()`), usa el mismo
@@ -119,9 +149,12 @@ cualquier código sensible a rendimiento. Resumen de lo más importante:
 
 1. Modelo(s) en `prisma/schema/<feature>.prisma` → `pnpm prisma generate`.
 2. `app/api/<feature>/route.ts` (valida input con `zod`).
-3. `lib/features/<feature>/{types,queries,hooks}.ts`.
-4. `app/<feature>/page.tsx` (Server Component: prefetch + `HydrationBoundary`).
-5. `app/<feature>/<feature>-client.tsx` (Client Component con los hooks).
+3. `lib/features/<feature>/{types,queries,hooks}.ts` — y `search-params.ts`
+   si la feature tiene filtros/paginación que deban vivir en la URL.
+4. `app/<feature>/page.tsx` (Server Component: parsea `searchParams` con nuqs
+   si aplica → prefetch + `HydrationBoundary`).
+5. `app/<feature>/<feature>-client.tsx` (Client Component con los hooks,
+   envuelto en `<Suspense>` desde `page.tsx` si lee estado de nuqs).
 
 ## Cómo crecer `lib/` más allá de `core` + `features`
 
