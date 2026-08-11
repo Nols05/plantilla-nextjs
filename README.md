@@ -38,20 +38,46 @@ de Prisma + API route + TanStack Query con prefetch SSR).
 
 ## Flujo recomendado para un proyecto nuevo
 
-1. **Una vez, sobre esta plantilla:** súbela a GitHub y márcala como _template
-   repository_ (Settings → General → Template repository), o simplemente
-   déjala como repo normal y clónala con `git clone --depth 1` cuando la
-   necesites.
-2. **Por proyecto nuevo:**
-   - Con GitHub template: botón "Use this template" → nombre del repo nuevo,
-     o `gh repo create mi-proyecto --template <tu-usuario>/plantilla-nextjs --private --clone`.
-   - Sin GitHub template: copia la carpeta a mano y borra `.git`.
-3. Renombra el placeholder: `pnpm run rename-project -- "Mi Proyecto"`.
-4. Rellena [PRODUCT.md](./PRODUCT.md) con el problema, los usuarios y el
+### Paso 0 (una sola vez): publicar esta plantilla en GitHub
+
+Ya tienes un repo git local con un commit inicial (`git log` para
+comprobarlo). Súbelo y márcalo como _template repository_ para poder usar
+"Use this template" en cada proyecto nuevo. Dos formas, según tengas o no
+[GitHub CLI](https://cli.github.com) instalado:
+
+**Sin GitHub CLI (solo `git`, funciona siempre):**
+
+1. Crea un repo vacío en <https://github.com/new> (sin README ni
+   `.gitignore` — ya los tenemos) llamado, por ejemplo, `plantilla-nextjs`.
+2. Conéctalo y súbelo:
+   ```bash
+   git remote add origin https://github.com/<tu-usuario>/plantilla-nextjs.git
+   git push -u origin main
+   ```
+3. En GitHub: **Settings → General → Template repository** → marca la casilla.
+
+**Con GitHub CLI** (instálalo antes con `winget install --id GitHub.cli -e`
+y autentícate con `gh auth login`):
+
+```bash
+gh repo create plantilla-nextjs --private --source=. --push
+gh api repos/{owner}/{repo} -X PATCH -f is_template=true
+```
+
+### Por cada proyecto nuevo
+
+1. Copia la plantilla:
+   - **Con template marcado en GitHub:** botón "Use this template" en la
+     página del repo → nombre del repo nuevo → `git clone` del repo creado.
+   - **Con GitHub CLI:**
+     `gh repo create mi-proyecto --template <tu-usuario>/plantilla-nextjs --private --clone`.
+   - **Sin GitHub:** copia la carpeta a mano y borra `.git` (`rm -rf .git && git init`).
+2. Renombra el placeholder: `pnpm run rename-project -- "Mi Proyecto"`.
+3. Rellena [PRODUCT.md](./PRODUCT.md) con el problema, los usuarios y el
    flujo core de este proyecto en concreto.
-5. `pnpm install`, copia `.env.example` → `.env` con tus credenciales reales,
+4. `pnpm install`, copia `.env.example` → `.env` con tus credenciales reales,
    `pnpm prisma generate`.
-6. Abre el repo con tu agente de IA (Claude Code) y pídele que construya,
+5. Abre el repo con tu agente de IA (Claude Code) y pídele que construya,
    apoyándose en `AGENTS.md` (cómo) + `PRODUCT.md` (qué). Recomendado: pídele
    primero que entre en modo plan para la arquitectura inicial antes de
    generar código.
