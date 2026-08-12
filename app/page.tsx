@@ -21,11 +21,11 @@ export default function HomePage() {
         </div>
       ) : (
         <div className="flex gap-3">
-          <Button asChild>
-            <Link href="/sign-in">Iniciar sesión</Link>
+          <Button nativeButton={false} render={<Link href="/sign-in" />}>
+            Iniciar sesión
           </Button>
-          <Button variant="outline" asChild>
-            <Link href="/sign-up">Crear cuenta</Link>
+          <Button variant="outline" nativeButton={false} render={<Link href="/sign-up" />}>
+            Crear cuenta
           </Button>
         </div>
       )}

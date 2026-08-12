@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+
+import { toast } from "@/components/ui/toast";
 
 import { fetchTasks, tasksQueryKey } from "./queries";
 import type { TaskDTO } from "./types";
@@ -34,7 +35,10 @@ export function useCreateTaskMutation() {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => {
-      toast.error(error instanceof Error ? error.message : "No se pudo crear la tarea");
+      toast.add({
+        title: error instanceof Error ? error.message : "No se pudo crear la tarea",
+        type: "error",
+      });
     },
   });
 }

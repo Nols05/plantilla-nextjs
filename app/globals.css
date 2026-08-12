@@ -122,6 +122,12 @@
   }
   body {
     @apply bg-background text-foreground;
+    /* Base UI: isolate() gives popups (Dialog, Popover, Tooltip, Toast...) their
+       own stacking context so page z-index never fights them; position:relative
+       is required for their backdrops on iOS 26+ Safari after scrolling.
+       https://base-ui.com/react/overview/quick-start */
+    isolation: isolate;
+    position: relative;
   }
   html {
     @apply font-sans;

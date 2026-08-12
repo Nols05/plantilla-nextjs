@@ -47,8 +47,24 @@ Suspense) en modelo `Task`:
   el patrón de `app/tasks/page.tsx` — `getQueryClient()` +
   `prefetchQuery` + `<HydrationBoundary>`, con el mismo `queryKey` que el hook
   cliente usa. Ver la [guía oficial de SSR avanzado](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr).
-- **UI:** usa solo componentes shadcn/ui (`components/ui`), nunca `radix-ui`
-  directamente. Prefiere `gap` con flex/grid antes que `space-y`/`space-x`.
+- **UI:** usa solo componentes shadcn/ui (`components/ui`), nunca `@base-ui/react`
+  directamente (es la librería de primitivas que usa el preset `base-nova`, el
+  default actual de shadcn). Prefiere `gap` con flex/grid antes que `space-y`/`space-x`.
+- **`Button` con `render`:** al pasar un elemento que no es un `<button>` real
+  (p. ej. `<Button render={<Link href="..." />}>`), añade también
+  `nativeButton={false}` — si no, Base UI avisa en consola de que rompe la
+  semántica nativa del botón (ver `app/page.tsx`).
+- **CSS de Base UI:** `body` ya tiene `isolation: isolate` (contexto de
+  apilamiento propio para que los popups — Dialog, Popover, Tooltip, Toast —
+  queden siempre por encima, sin pelearse con el `z-index` del resto de la
+  página) y `position: relative` (necesario para los backdrops en iOS 26+
+  Safari) en `app/globals.css`, tal como recomienda la
+  [guía oficial de Base UI](https://base-ui.com/react/overview/quick-start).
+  No los quites.
+- **Toaster:** `<Toaster />` va montado como hermano de `{children}`, no
+  envolviéndolo — es un componente de renderizado (portal), no un context
+  provider que necesite envolver el árbol (ver `app/providers.tsx` y la
+  [doc del componente Toast](https://ui.shadcn.com/docs/components/base/toast)).
 - **Clases condicionales:** usa `cn` de `@/lib/core/utils` (re-exporta
   `cnfast`), no concatenación manual ni `clsx` directo.
 - **TypeScript:** evita `enum` (usa const maps / union types). Prefiere

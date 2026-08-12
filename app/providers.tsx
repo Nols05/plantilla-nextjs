@@ -1,10 +1,9 @@
 "use client";
 
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ThemeProvider } from "next-themes";
 
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { getQueryClient } from "@/lib/core/react-query";
 
@@ -17,7 +16,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <TooltipProvider>{children}</TooltipProvider>
         <Toaster />
       </ThemeProvider>
-      {process.env.NODE_ENV !== "production" && <ReactQueryDevtools initialIsOpen={false} />}
     </QueryClientProvider>
   );
 }
