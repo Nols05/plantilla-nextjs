@@ -2,7 +2,7 @@
 
 Plantilla base para arrancar proyectos: Next.js 16 (App Router), Prisma 7
 (Postgres, carpeta `prisma/schema/`), Tailwind 4, TanStack Query 5 (con SSR
-avanzado), TypeScript 7, UI [coss](https://coss.build)/shadcn y autenticación
+avanzado), TypeScript 7, UI [shadcn/ui](https://ui.shadcn.com) y autenticación
 con [Better Auth](https://better-auth.com).
 
 Para las convenciones técnicas (qué patrones seguir, cómo se organiza `lib/`,
@@ -93,7 +93,7 @@ app/                   rutas, layouts, API routes
   api/tasks/route.ts    ejemplo de API route con validación zod
   sign-in/, sign-up/    formularios de referencia de Better Auth
   tasks/                ejemplo de página SSR con prefetch + HydrationBoundary
-components/ui/         componentes coss/shadcn (generados, no editar a mano)
+components/ui/         componentes shadcn/ui (generados, no editar a mano)
 lib/core/               infraestructura: db.ts, react-query.ts, utils.ts (cn),
                         auth.ts (servidor), auth-client.ts (React)
 lib/features/tasks/     ejemplo de patrón por-feature (queries + hooks)

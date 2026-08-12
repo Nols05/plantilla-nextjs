@@ -21,9 +21,11 @@ export default function HomePage() {
         </div>
       ) : (
         <div className="flex gap-3">
-          <Button render={<Link href="/sign-in" />}>Iniciar sesión</Button>
-          <Button variant="outline" render={<Link href="/sign-up" />}>
-            Crear cuenta
+          <Button asChild>
+            <Link href="/sign-in">Iniciar sesión</Link>
+          </Button>
+          <Button variant="outline" asChild>
+            <Link href="/sign-up">Crear cuenta</Link>
           </Button>
         </div>
       )}

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import { signUp } from "@/lib/core/auth-client";
 
 export default function SignUpPage() {
@@ -64,7 +65,8 @@ export default function SignUpPage() {
           />
         </div>
         {error && <p className="text-destructive text-sm">{error}</p>}
-        <Button type="submit" loading={loading}>
+        <Button type="submit" disabled={loading}>
+          {loading && <Spinner />}
           Crear cuenta
         </Button>
       </form>

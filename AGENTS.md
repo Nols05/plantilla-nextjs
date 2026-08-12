@@ -12,7 +12,7 @@ verdad tool-agnostic; `CLAUDE.md` solo apunta aquí para evitar duplicar reglas.
 ## Stack
 
 Next.js 16 (App Router), React 19, TypeScript 7, Prisma 7 (Postgres),
-TanStack Query 5, Tailwind 4, UI con [coss](https://coss.build)/shadcn,
+TanStack Query 5, Tailwind 4, UI con [shadcn/ui](https://ui.shadcn.com),
 autenticación con [Better Auth](https://better-auth.com), estado de query
 params con [nuqs](https://nuqs.dev). Gestor de paquetes: **pnpm** (no uses
 npm/yarn, el lockfile es `pnpm-lock.yaml`).
@@ -26,7 +26,7 @@ npm/yarn, el lockfile es `pnpm-lock.yaml`).
   `queries.ts`, `hooks.ts`). Es el patrón por defecto para código nuevo.
 - `prisma/schema/` — un archivo `.prisma` por dominio (no un `schema.prisma`
   único). `main.prisma` solo tiene el bloque `generator`/`datasource`.
-- `components/ui/` — componentes shadcn/coss generados. No los edites a mano
+- `components/ui/` — componentes shadcn/ui generados. No los edites a mano
   salvo necesidad real; añade nuevos con `pnpm dlx shadcn add <componente>`.
 
 Referencia viva del patrón completo (Prisma + TanStack Query SSR + nuqs +
@@ -47,7 +47,7 @@ Suspense) en modelo `Task`:
   el patrón de `app/tasks/page.tsx` — `getQueryClient()` +
   `prefetchQuery` + `<HydrationBoundary>`, con el mismo `queryKey` que el hook
   cliente usa. Ver la [guía oficial de SSR avanzado](https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr).
-- **UI:** usa solo componentes coss/shadcn (`components/ui`), nunca Radix
+- **UI:** usa solo componentes shadcn/ui (`components/ui`), nunca `radix-ui`
   directamente. Prefiere `gap` con flex/grid antes que `space-y`/`space-x`.
 - **Clases condicionales:** usa `cn` de `@/lib/core/utils` (re-exporta
   `cnfast`), no concatenación manual ni `clsx` directo.
