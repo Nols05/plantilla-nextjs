@@ -29,5 +29,14 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "generated", ".next", "dist", "build", "out", "scripts"]
+  "exclude": [
+    "node_modules",
+    "generated",
+    ".next",
+    "dist",
+    "build",
+    "out",
+    "scripts",
+    "tools/oxlint"
+  ]
 }

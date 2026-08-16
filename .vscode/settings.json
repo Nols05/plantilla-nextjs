@@ -4,6 +4,6 @@
   "editor.formatOnType": false,
   "typescript.preferences.includePackageJsonAutoImports": "off",
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "never"
+    "source.fixAll.oxc": "never"
   }
 }

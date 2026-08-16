@@ -31,7 +31,8 @@ end-to-end de Prisma + API route + TanStack Query con prefetch SSR).
 | `pnpm build`              | Build de producción (standalone)                                   |
 | `pnpm start`              | Sirve el build de producción                                       |
 | `pnpm test`               | Tests (`node --test`, sin framework extra)                         |
-| `pnpm run lint`           | ESLint                                                             |
+| `pnpm run lint`           | [oxlint](https://oxc.rs) (no ESLint, ver `AGENTS.md`)              |
+| `pnpm run lint:fix`       | oxlint con `--fix`                                                 |
 | `pnpm run format`         | Prettier (con orden de clases de Tailwind)                         |
 | `pnpm run typecheck`      | `tsc --noEmit`                                                     |
 | `pnpm run knip`           | Detecta código y dependencias muertas                              |
@@ -101,6 +102,7 @@ prisma/schema/          un archivo .prisma por dominio (auth.prisma generado
                         por `pnpm run auth:generate`, no editar a mano)
 prisma/seed.ts          seed de desarrollo
 scripts/                scripts de mantenimiento (tests, rename-project)
+tools/oxlint/           plugin de lint propio (anti-slop), ver AGENTS.md
 .agents/skills/         guía de rendimiento React/Next.js vendorizada (ver AGENTS.md)
 ```
 

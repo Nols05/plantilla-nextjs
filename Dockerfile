@@ -1,19 +1,22 @@
 # Step 1: base
 FROM node:22-alpine3.20 AS base
-WORKDIR /app
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
+WORKDIR /app
 
 # Step 2: dependencies
 FROM base AS deps
-# Prisma needs openssl to install its engine binaries
-RUN apk add --no-cache openssl
+# openssl: Prisma engine binaries. libc6-compat: glibc shim some native
+# addons expect on musl/Alpine.
+RUN apk add --no-cache openssl libc6-compat
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
 
 # Step 3: build
 FROM base AS builder
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl libc6-compat
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 

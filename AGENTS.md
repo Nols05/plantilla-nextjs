@@ -191,7 +191,8 @@ producción del que sale esta plantilla.
 
 - `pnpm test` — corre `scripts/run-tests.mjs` (`node --test` + `tsx`, sin
   framework adicional; recoge cualquier `*.test.ts` bajo `app/` o `lib/`).
-- `pnpm run lint` — ESLint (con `simple-import-sort` y `unused-imports`).
+- `pnpm run lint` / `pnpm run lint:fix` — [oxlint](https://oxc.rs/docs/guide/usage/linter.html),
+  no ESLint (ver sección siguiente).
 - `pnpm run typecheck` — `tsc --noEmit`.
 - `pnpm run format` — Prettier (con `prettier-plugin-tailwindcss`, ordena
   clases de Tailwind automáticamente).
@@ -201,10 +202,25 @@ El guardado automático (`formatOnSave`) está desactivado a propósito
 (`.vscode/settings.json`) — corre `pnpm run format`/`pnpm run lint` de forma
 explícita.
 
-> **Nota conocida:** con TypeScript 7, `pnpm run lint` falla ahora mismo con
-> `typescript-eslint does not support TS 7.0` — es una limitación de
-> `typescript-eslint` (no de esta plantilla ni de tu código), ya trackeada en
-> [typescript-eslint#10940](https://github.com/typescript-eslint/typescript-eslint/issues/10940).
-> Por eso el CI no incluye un paso de lint todavía. `pnpm run format` y
-> `pnpm run typecheck` sí funcionan con normalidad; vuelve a activar el paso
-> de lint en CI en cuanto se publique la versión compatible.
+## Linting (oxlint, no ESLint)
+
+Este proyecto usa [oxlint](https://oxc.rs) en vez de ESLint — es lo que usa
+gestanex también, y a diferencia de `typescript-eslint`, funciona sin
+problemas con TypeScript 7.
+
+- `.oxlintrc.json` — configuración. Solo la categoría `correctness` está en
+  `error`; el resto están apagadas a propósito (`suspicious`, `pedantic`,
+  `perf`, `style`, `restriction`) para evitar ruido de estilo que ya cubre
+  Prettier.
+- `components/ui/**` está en `ignorePatterns` — son componentes generados por
+  shadcn (código vendor, no tuyo); algunos usan patrones ARIA (`role="group"`,
+  etc.) que disparan falsos positivos del plugin `jsx-a11y` al analizarlos
+  fuera de contexto de uso. No los edites para "arreglar" el lint.
+- **`tools/oxlint/anti-slop/`** — un plugin de oxlint propio (vendorizado de
+  gestanex, es genérico y no específico de ningún proyecto) que detecta
+  patrones típicos de código generado por IA de baja calidad: aserciones de
+  tipo encadenadas, parámetros/retornos `unknown` sin parsear en el borde,
+  diccionarios `Record<string, unknown>` sin contrato, `Reflect.apply`/`get`
+  innecesarios, etc. La mayoría son `warn` (avisan, no bloquean el lint) —
+  revísalos con criterio, no los silencies sin más.
+- Extensión de VS Code recomendada: `oxc.oxc-vscode` (ver `.vscode/extensions.json`).
